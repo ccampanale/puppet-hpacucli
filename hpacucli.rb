@@ -10,6 +10,7 @@ if File.exists?("/usr/sbin/hpacucli")
 
   context_array = []
   pd = 0
+  mirror_group = {}
 
   raw_data.each do |line|
     popped = ''
@@ -35,12 +36,25 @@ if File.exists?("/usr/sbin/hpacucli")
         while(!popped.match(/mirror_group_(\d+)/) && context_array.size > 3)
               popped = context_array.pop
         end
+        mirror_group["mirror_group_#{id}"] = []
         context_array.push "mirror_group_#{id}"
+      when /physicaldrive_(\d:\d|\d.:\d:\d)_/
+        did = $1
+        if context_array.last && context_array.last.match(/mirror_group_(\d+)/)
+          mirror_group["mirror_group_#{$1}"] << did
+        end
       when /physicaldrive_(\d:\d|\d.:\d:\d)+$/
+        pid=$1
         while(!popped.match(/physicaldrive_(\d:\d|\d.:\d:\d)+$/) && context_array.size > 3)
           popped = context_array.pop
         end
         pd += 1 unless popped == ''
+       
+        mirror_group.each do |k,v|
+          if v.include? pid
+            context_array.push k
+          end
+        end
         context_array.push "pd#{pd}"
       else
         if context_array.last && context_array.last.downcase.match(/mirror_group_(\d+)$/)
