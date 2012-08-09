@@ -43,7 +43,7 @@ if File.exists?("/usr/sbin/hpacucli")
         pd += 1 unless popped == ''
         context_array.push "pd#{pd}"
       else
-        if context_array.last.downcase.match(/mirror_group_(\d+)$/)
+        if context_array.last && context_array.last.downcase.match(/mirror_group_(\d+)$/)
           key, value = line.split('_', 2)
           context_array.push key
           context_array.pop
