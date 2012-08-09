@@ -52,7 +52,7 @@ if File.exists?("/usr/sbin/hpacucli")
         end
         context_array.push key
         value.gsub!('_', '') if value
-        Facter.add(context_array.join("_").downcase) do setcode do value end end
+        (Facter.add(context_array.join("_").downcase) do setcode do value end end) unless context_array.empty?
         context_array.pop
       end
     popped = ''
